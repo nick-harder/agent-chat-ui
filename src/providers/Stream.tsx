@@ -71,11 +71,13 @@ const StreamSession = ({
   apiKey,
   apiUrl,
   assistantId,
+  authToken,
 }: {
   children: ReactNode;
   apiKey: string | null;
   apiUrl: string;
   assistantId: string;
+  authToken: string;
 }) => {
   const [threadId, setThreadId] = useQueryState("threadId");
   const { getThreads, setThreads } = useThreads();
@@ -84,6 +86,9 @@ const StreamSession = ({
     apiKey: apiKey ?? undefined,
     assistantId,
     threadId: threadId ?? null,
+    defaultHeaders: {
+      Authorization: `Bearer ${authToken}`,
+    },
     onCustomEvent: (event, options) => {
       if (isUIMessage(event) || isRemoveUIMessage(event)) {
         options.mutate((prev) => {
@@ -155,6 +160,65 @@ export const StreamProvider: React.FC<{ children: ReactNode }> = ({
     window.localStorage.setItem("lg:chat:apiKey", key);
     _setApiKey(key);
   };
+
+  // Add token state
+  const [authToken, setAuthToken] = useState<string | null>(null);
+  const [checkedToken, setCheckedToken] = useState(false);
+
+  useEffect(() => {
+    // Only run on client
+    const token = window.localStorage.getItem("lg:chat:authToken") || "";
+    setAuthToken(token || null);
+    setCheckedToken(true);
+  }, []);
+
+  // Only render after client check
+  if (!checkedToken) {
+    return null; // Or a loading spinner
+  }
+
+  if (!authToken) {
+    return (
+      <div className="flex min-h-screen w-full items-center justify-center p-4">
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            const formData = new FormData(e.currentTarget);
+            const token = formData.get("authToken") as string;
+            setAuthToken(token);
+            window.localStorage.setItem("lg:chat:authToken", token);
+          }}
+          className="bg-muted/50 flex flex-col gap-6 p-6 rounded-lg border shadow-lg"
+        >
+          <div className="flex flex-col items-start gap-2 mb-4">
+            <LangGraphLogoSVG className="h-7" />
+            <h1 className="text-xl font-semibold tracking-tight">
+              Enter Authentication Token
+            </h1>
+            <p className="text-muted-foreground text-sm">
+              Please enter your authentication token to continue.
+            </p>
+          </div>
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="authToken">Token</Label>
+            <PasswordInput
+              id="authToken"
+              name="authToken"
+              className="bg-background"
+              placeholder="Your token..."
+              required
+            />
+          </div>
+          <div className="mt-2 flex justify-end">
+            <Button type="submit" size="lg">
+              Continue
+              <ArrowRight className="size-5" />
+            </Button>
+          </div>
+        </form>
+      </div>
+    );
+  }
 
   // Determine final values to use, prioritizing URL params then env vars
   const finalApiUrl = apiUrl || envApiUrl;
@@ -267,6 +331,7 @@ export const StreamProvider: React.FC<{ children: ReactNode }> = ({
       apiKey={apiKey}
       apiUrl={apiUrl}
       assistantId={assistantId}
+      authToken={authToken} // Pass token to StreamSession
     >
       {children}
     </StreamSession>
