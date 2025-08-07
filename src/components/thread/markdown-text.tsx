@@ -118,12 +118,15 @@ const defaultComponents: any = {
       {...props}
     />
   ),
-  a: ({ className, ...props }: { className?: string }) => (
+  a: ({ className, href, ...props }: { className?: string; href?: string }) => (
     <a
       className={cn(
         "text-primary font-medium underline underline-offset-4",
         className,
       )}
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
       {...props}
     />
   ),

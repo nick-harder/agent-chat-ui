@@ -4,7 +4,6 @@ import { AIMessage, Checkpoint, Message } from "@langchain/langgraph-sdk";
 import { getContentString } from "../utils";
 import { BranchSwitcher, CommandBar } from "./shared";
 import { MarkdownText } from "../markdown-text";
-import { LoadExternalComponent } from "@langchain/langgraph-sdk/react-ui";
 import { cn } from "@/lib/utils";
 import { ToolCalls, ToolResult } from "./tool-calls";
 import { MessageContentComplex } from "@langchain/core/messages";
@@ -13,32 +12,44 @@ import { isAgentInboxInterruptSchema } from "@/lib/agent-inbox-interrupt";
 import { ThreadView } from "../agent-inbox";
 import { useQueryState, parseAsBoolean } from "nuqs";
 import { GenericInterruptView } from "./generic-interrupt";
-import { useArtifact } from "../artifact";
+import ComponentMap from "../../custom";
 
 function CustomComponent({
   message,
-  thread,
 }: {
   message: Message;
-  thread: ReturnType<typeof useStreamContext>;
 }) {
-  const artifact = useArtifact();
   const { values } = useStreamContext();
   const customComponents = values.ui?.filter(
     (ui) => ui.metadata?.message_id === message.id,
   );
 
   if (!customComponents?.length) return null;
+  
   return (
     <Fragment key={message.id}>
-      {customComponents.map((customComponent) => (
-        <LoadExternalComponent
-          key={customComponent.id}
-          stream={thread}
-          message={customComponent}
-          meta={{ ui: customComponent, artifact }}
-        />
-      ))}
+      {customComponents.map((customComponent) => {        
+        const componentType = customComponent.name || customComponent.type;
+        const ComponentType = ComponentMap[componentType as keyof typeof ComponentMap];
+        
+        if (ComponentType) {
+          // Optional: Add runtime validation for critical props
+          if (componentType === 'plot' && !customComponent.props?.src) {
+            console.warn('PlotHTML component missing required src prop', customComponent);
+            return null;
+          }
+          
+          return (
+            <ComponentType
+              key={customComponent.id}
+              {...(customComponent.props as any)} // This is fine for now
+            />
+          );
+        }
+        
+        console.warn(`Unknown component type: ${componentType}`, customComponent);
+        return null;
+      })}
     </Fragment>
   );
 }
@@ -177,7 +188,6 @@ export function AssistantMessage({
             {message && (
               <CustomComponent
                 message={message}
-                thread={thread}
               />
             )}
             <Interrupt
