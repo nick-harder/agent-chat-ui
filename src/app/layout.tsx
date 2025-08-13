@@ -11,8 +11,8 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "ENTSOE-E Analytics Bot",
-  description: "ENTSOE-E Analytics Bot UX by Nick",
+  title: "ENTSO-E Analytics Bot (unofficial)",
+  description: "ENTSO-E Analytics Bot (unofficial) by Nick",
 };
 
 export default function RootLayout({
