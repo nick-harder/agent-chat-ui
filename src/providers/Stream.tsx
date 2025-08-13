@@ -167,9 +167,26 @@ export const StreamProvider: React.FC<{ children: ReactNode }> = ({
 
   useEffect(() => {
     // Only run on client
-    // const token = window.localStorage.getItem("lg:chat:authToken") || "";
-    setAuthToken("12345");
-    setCheckedToken(true);
+    const token = window.localStorage.getItem("lg:chat:authToken");
+    if (token) {
+      fetch("/api/auth", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token }),
+      })
+        .then((res) => res.json())
+        .then(({ valid }) => {
+          if (valid) {
+            setAuthToken(token);
+          } else {
+            window.localStorage.removeItem("lg:chat:authToken");
+          }
+          setCheckedToken(true);
+        })
+        .catch(() => setCheckedToken(true));
+    } else {
+      setCheckedToken(true);
+    }
   }, []);
 
   // Only render after client check
@@ -181,12 +198,32 @@ export const StreamProvider: React.FC<{ children: ReactNode }> = ({
     return (
       <div className="flex min-h-screen w-full items-center justify-center p-4">
         <form
-          onSubmit={(e) => {
+          onSubmit={async (e) => {
             e.preventDefault();
             const formData = new FormData(e.currentTarget);
             const token = formData.get("authToken") as string;
-            setAuthToken(token);
-            window.localStorage.setItem("lg:chat:authToken", token);
+
+            try {
+              const response = await fetch("/api/auth", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ token }),
+              });
+
+              if (response.ok) {
+                const { valid } = await response.json();
+                if (valid) {
+                  setAuthToken(token);
+                  window.localStorage.setItem("lg:chat:authToken", token);
+                } else {
+                  toast.error("Invalid token. Please try again.");
+                }
+              } else {
+                toast.error("Authentication failed. Please try again.");
+              }
+            } catch {
+              toast.error("Failed to connect to authentication service.");
+            }
           }}
           className="bg-muted/50 flex flex-col gap-6 p-6 rounded-lg border shadow-lg"
         >
