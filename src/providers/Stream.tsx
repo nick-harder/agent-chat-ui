@@ -167,8 +167,8 @@ export const StreamProvider: React.FC<{ children: ReactNode }> = ({
 
   useEffect(() => {
     // Only run on client
-    const token = window.localStorage.getItem("lg:chat:authToken") || "";
-    setAuthToken(token || null);
+    // const token = window.localStorage.getItem("lg:chat:authToken") || "";
+    setAuthToken("12345");
     setCheckedToken(true);
   }, []);
 
