@@ -115,9 +115,13 @@ export function AssistantMessage({
 }) {
   const content = message?.content ?? [];
   const contentString = getContentString(content);
+  const hideToolCallsDefault =
+    typeof process !== "undefined" &&
+    process.env.NEXT_PUBLIC_HIDE_TOOL_CALLS === "true";
+
   const [hideToolCalls] = useQueryState(
     "hideToolCalls",
-    parseAsBoolean.withDefault(false),
+    parseAsBoolean.withDefault(hideToolCallsDefault),
   );
 
   const thread = useStreamContext();
