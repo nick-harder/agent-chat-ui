@@ -96,9 +96,13 @@ export function Thread() {
     "chatHistoryOpen",
     parseAsBoolean.withDefault(false),
   );
+  const hideToolCallsDefault =
+    typeof process !== "undefined" &&
+    process.env.NEXT_PUBLIC_HIDE_TOOL_CALLS === "true";
+
   const [hideToolCalls, setHideToolCalls] = useQueryState(
     "hideToolCalls",
-    parseAsBoolean.withDefault(false),
+    parseAsBoolean.withDefault(hideToolCallsDefault),
   );
   const [input, setInput] = useState("");
   const {
@@ -127,7 +131,7 @@ export function Thread() {
     closeArtifact();
     setArtifactContext({});
   };
-
+  
   useEffect(() => {
     if (!stream.error) {
       lastError.current = undefined;
