@@ -31,12 +31,6 @@ import { toast } from "sonner";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { Label } from "../ui/label";
 import { Switch } from "../ui/switch";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "../ui/tooltip";
 import { useFileUpload } from "@/hooks/use-file-upload";
 import { ContentBlocksPreview } from "./ContentBlocksPreview";
 import {
@@ -226,6 +220,35 @@ export function Thread() {
     });
   };
 
+  // add this helper
+  const startExample = (prompt: string) => {
+    setFirstTokenReceived(false);
+    const newHumanMessage: Message = {
+      id: uuidv4(),
+      type: "human",
+      content: [{ type: "text", text: prompt }],
+    };
+    const toolMessages = ensureToolCallsHaveResponses(stream.messages);
+    const context =
+      Object.keys(artifactContext).length > 0 ? artifactContext : undefined;
+
+    stream.submit(
+      { messages: [...toolMessages, newHumanMessage], context },
+      {
+        streamMode: ["values"],
+        optimisticValues: (prev) => ({
+          ...prev,
+          context,
+          messages: [
+            ...(prev.messages ?? []),
+            ...toolMessages,
+            newHumanMessage,
+          ],
+        }),
+      },
+    );
+  };
+
   const chatStarted = !!threadId || !!messages.length;
   const hasNoAIOrToolMessages = !messages.find(
     (m) => m.type === "ai" || m.type === "tool",
@@ -286,7 +309,7 @@ export function Thread() {
         >
           {!chatStarted && (
             <div className="absolute top-0 left-0 z-10 flex w-full items-center justify-between gap-3 p-2 pl-4">
-              <div>
+              {/* <div>
                 {(!chatHistoryOpen || !isLargeScreen) && (
                   <Button
                     className="hover:bg-gray-100"
@@ -300,13 +323,13 @@ export function Thread() {
                     )}
                   </Button>
                 )}
-              </div>
+              </div> */}
             </div>
           )}
           {chatStarted && (
             <div className="relative z-10 flex items-center justify-between gap-3 p-2">
               <div className="relative flex items-center justify-start gap-2">
-                <div className="absolute left-0 z-10">
+                {/* <div className="absolute left-0 z-10">
                   {(!chatHistoryOpen || !isLargeScreen) && (
                     <Button
                       className="hover:bg-gray-100"
@@ -320,7 +343,7 @@ export function Thread() {
                       )}
                     </Button>
                   )}
-                </div>
+                </div> */}
                 <motion.button
                   className="flex cursor-pointer items-center gap-2"
                   onClick={() => setThreadId(null)}
@@ -334,7 +357,7 @@ export function Thread() {
                   }}
                 >
                   <span className="text-xl font-semibold tracking-tight">
-                    ENTSO-E Analytics Bot (unofficial)
+                    Energy Data Analytics Bot
                   </span>
                 </motion.button>
               </div>
@@ -365,6 +388,51 @@ export function Thread() {
               contentClassName="pt-8 pb-16  max-w-3xl mx-auto flex flex-col gap-4 w-full"
               content={
                 <>
+                  {/* render title, description + example buttons on initial load */}
+                  {!chatStarted && (
+                    <div className="space-y-4 px-4 max-w-3xl mx-auto text-center">
+                      <h1 className="text-2xl font-semibold tracking-tight">
+                        Energy Data Analytics Bot
+                      </h1>
+                      <p className="text-gray-600">
+                        This Bot has access to data from the ENTSO-E platform and can
+                        help you analyze energy-related data such as prices,
+                        generation, load, and cross-border flows.
+                      </p>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <button
+                          className="border rounded-lg p-4 hover:bg-gray-50"
+                          onClick={() =>
+                            startExample(
+                              "Analyze day-ahead prices for Germany for the last month",
+                            )
+                          }
+                        >
+                          Day-Ahead Prices for Germany (Last Month)
+                        </button>
+                        <button
+                          className="border rounded-lg p-4 hover:bg-gray-50"
+                          onClick={() =>
+                            startExample(
+                              "Provide a correlation analysis between price and generation per technology for Germany in 2024 by quarter",
+                            )
+                          }
+                        >
+                          Correlation: Price vs Generation (Germany 2024/Q)
+                        </button>
+                        <button
+                          className="border rounded-lg p-4 hover:bg-gray-50"
+                          onClick={() =>
+                            startExample(
+                              "Analyze commercial vs physical flows between Germany and France in both directions for July 2025",
+                            )
+                          }
+                        >
+                          Commercial vs Physical Flows (DE ↔ FR July 2025)
+                        </button>
+                      </div>
+                    </div>
+                  )}
                   {messages
                     .filter((m) => !m.id?.startsWith(DO_NOT_RENDER_ID_PREFIX))
                     .map((message, index) =>
@@ -400,15 +468,7 @@ export function Thread() {
               }
               footer={
                 <div className="sticky bottom-0 flex flex-col items-center gap-8 bg-white">
-                  {!chatStarted && (
-                    <div className="flex items-center gap-3">
-                      {/* <LangGraphLogoSVG className="h-8 flex-shrink-0" /> */}
-                      <h1 className="text-2xl font-semibold tracking-tight">
-                        ENTSO-E Analytics Bot (unofficial)
-                      </h1>
-                    </div>
-                  )}
-
+                  {/* removed duplicate title from footer */}
                   <ScrollToBottom className="animate-in fade-in-0 zoom-in-95 absolute bottom-full left-1/2 mb-4 -translate-x-1/2" />
 
                   <div
@@ -465,7 +525,7 @@ export function Thread() {
                             </Label>
                           </div>
                         </div>
-                        <Label
+                        {/* <Label
                           htmlFor="file-input"
                           className="flex cursor-pointer items-center gap-2"
                         >
@@ -473,7 +533,7 @@ export function Thread() {
                           <span className="text-sm text-gray-600">
                             Upload PDF or Image
                           </span>
-                        </Label>
+                        </Label> */}
                         <input
                           id="file-input"
                           type="file"
