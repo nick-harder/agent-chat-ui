@@ -396,7 +396,7 @@ export function Thread() {
                         Energy Data Analytics Bot
                       </h1>
                       <p className="text-gray-600">
-                        This Bot has access to data from the ENTSO-E platform and can
+                        This Bot has access to data from the ENTSO-E and Regelleistung.net platforms and can
                         help you analyze energy-related data such as prices,
                         generation, load, and cross-border flows.
                       </p>
@@ -405,21 +405,21 @@ export function Thread() {
                           className="border rounded-lg p-4 hover:bg-gray-50"
                           onClick={() =>
                             startExample(
-                              "Analyze day-ahead prices for Germany for the last month",
+                              "Analyze day-ahead prices for Germany for July 2025 and provide me a summary of the main statistics (average, min, max, std) along with a line chart of the prices over time.",
                             )
                           }
                         >
-                          Day-Ahead Prices for Germany (Last Month)
+                          Day-Ahead Prices for Germany in July 2025
                         </button>
                         <button
                           className="border rounded-lg p-4 hover:bg-gray-50"
                           onClick={() =>
                             startExample(
-                              "Provide a correlation analysis between price and generation per technology for Germany in 2024 by quarter",
+                              "Provide a correlation analysis between price and generation per technology for Germany in 2024 and return me an excel file with the results as well as description of the most important findings.",
                             )
                           }
                         >
-                          Correlation: Price vs Generation (Germany 2024/Q)
+                          Correlation: Price vs Generation in Germany for 2024
                         </button>
                         <button
                           className="border rounded-lg p-4 hover:bg-gray-50"

@@ -19,9 +19,9 @@
     "format:check": "prettier --check ."
   },
   "dependencies": {
-    "@langchain/core": "^0.3.44",
-    "@langchain/langgraph": "^0.2.63",
-    "@langchain/langgraph-sdk": "^0.0.73",
+    "@langchain/core": "^0.3.72",
+    "@langchain/langgraph": "^0.4.7",
+    "@langchain/langgraph-sdk": "^0.0.112",
     "@radix-ui/react-avatar": "^1.1.3",
     "@radix-ui/react-dialog": "^1.1.6",
     "@radix-ui/react-label": "^2.1.2",
@@ -36,7 +36,7 @@
     "esbuild-plugin-tailwindcss": "^2.0.1",
     "framer-motion": "^12.4.9",
     "katex": "^0.16.21",
-    "langgraph-nextjs-api-passthrough": "^0.0.4",
+    "langgraph-nextjs-api-passthrough": "^0.1.4",
     "lodash": "^4.17.21",
     "lucide-react": "^0.476.0",
     "next-themes": "^0.4.4",
@@ -84,7 +84,7 @@
   "overrides": {
     "react-is": "^19.0.0-rc-69d4b800-20241021"
   },
-  "packageManager": "pnpm@10.5.1",
+  "packageManager": "pnpm@10.15.0",
   "pnpm": {
     "onlyBuiltDependencies": [
       "@tailwindcss/oxide",
