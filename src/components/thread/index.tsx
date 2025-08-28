@@ -378,14 +378,15 @@ export function Thread() {
             </div>
           )}
 
-          <StickToBottom className="relative flex-1 overflow-hidden">
+          <StickToBottom className="relative flex flex-col flex-1 overflow-hidden">
+            {/* Scrollable message area */}
             <StickyToBottomContent
               className={cn(
-                "absolute inset-0 overflow-y-scroll px-4 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-track]:bg-transparent",
+                "overflow-y-scroll px-4 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-track]:bg-transparent",
                 !chatStarted && "mt-[25vh] flex flex-col items-stretch",
                 chatStarted && "grid grid-rows-[1fr_auto]",
               )}
-              contentClassName="pt-8 pb-16  max-w-3xl mx-auto flex flex-col gap-4 w-full"
+              contentClassName="pt-8 pb-40 max-w-3xl mx-auto flex flex-col gap-4 w-full"
               content={
                 <>
                   {/* render title, description + example buttons on initial load */}
@@ -466,109 +467,95 @@ export function Thread() {
                   )}
                 </>
               }
-              footer={
-                <div className="sticky bottom-0 flex flex-col items-center gap-8 bg-white">
-                  {/* removed duplicate title from footer */}
-                  <ScrollToBottom className="animate-in fade-in-0 zoom-in-95 absolute bottom-full left-1/2 mb-4 -translate-x-1/2" />
-
-                  <div
-                    ref={dropRef}
-                    className={cn(
-                      "bg-muted relative z-10 mx-auto mb-8 w-full max-w-3xl rounded-2xl shadow-xs transition-all",
-                      dragOver
-                        ? "border-primary border-2 border-dotted"
-                        : "border border-solid",
-                    )}
-                  >
-                    <form
-                      onSubmit={handleSubmit}
-                      className="mx-auto grid max-w-3xl grid-rows-[1fr_auto] gap-2"
-                    >
-                      <ContentBlocksPreview
-                        blocks={contentBlocks}
-                        onRemove={removeBlock}
-                      />
-                      <textarea
-                        value={input}
-                        onChange={(e) => setInput(e.target.value)}
-                        onPaste={handlePaste}
-                        onKeyDown={(e) => {
-                          if (
-                            e.key === "Enter" &&
-                            !e.shiftKey &&
-                            !e.metaKey &&
-                            !e.nativeEvent.isComposing
-                          ) {
-                            e.preventDefault();
-                            const el = e.target as HTMLElement | undefined;
-                            const form = el?.closest("form");
-                            form?.requestSubmit();
-                          }
-                        }}
-                        placeholder="Type your message..."
-                        className="field-sizing-content resize-none border-none bg-transparent p-3.5 pb-0 shadow-none ring-0 outline-none focus:ring-0 focus:outline-none"
-                      />
-
-                      <div className="flex items-center gap-6 p-2 pt-4">
-                        <div>
-                          <div className="flex items-center space-x-2">
-                            <Switch
-                              id="render-tool-calls"
-                              checked={hideToolCalls ?? false}
-                              onCheckedChange={setHideToolCalls}
-                            />
-                            <Label
-                              htmlFor="render-tool-calls"
-                              className="text-sm text-gray-600"
-                            >
-                              Hide Tool Calls
-                            </Label>
-                          </div>
-                        </div>
-                        {/* <Label
-                          htmlFor="file-input"
-                          className="flex cursor-pointer items-center gap-2"
-                        >
-                          <Plus className="size-5 text-gray-600" />
-                          <span className="text-sm text-gray-600">
-                            Upload PDF or Image
-                          </span>
-                        </Label> */}
-                        <input
-                          id="file-input"
-                          type="file"
-                          onChange={handleFileUpload}
-                          multiple
-                          accept="image/jpeg,image/png,image/gif,image/webp,application/pdf"
-                          className="hidden"
-                        />
-                        {stream.isLoading ? (
-                          <Button
-                            key="stop"
-                            onClick={() => stream.stop()}
-                            className="ml-auto"
-                          >
-                            <LoaderCircle className="h-4 w-4 animate-spin" />
-                            Cancel
-                          </Button>
-                        ) : (
-                          <Button
-                            type="submit"
-                            className="ml-auto shadow-md transition-all"
-                            disabled={
-                              isLoading ||
-                              (!input.trim() && contentBlocks.length === 0)
-                            }
-                          >
-                            Send
-                          </Button>
-                        )}
-                      </div>
-                    </form>
-                  </div>
-                </div>
-              }
             />
+            {/* Fixed input panel and scroll-to-bottom button, both inside StickToBottom context */}
+            <div className="relative">
+              <ScrollToBottom className="animate-in fade-in-0 zoom-in-95 absolute bottom-[calc(100%+12px)] left-1/2 -translate-x-1/2" />
+              <div
+                ref={dropRef}
+                className={cn(
+                  "bg-muted relative z-10 mx-auto mb-6 w-full max-w-3xl rounded-2xl shadow-xs transition-all",
+                  dragOver ? "border-primary border-2 border-dotted" : "border border-solid",
+                )}
+                style={{ marginBottom: 16 }}
+              >
+                <form
+                  onSubmit={handleSubmit}
+                  className="mx-auto grid max-w-3xl gap-2 p-4"
+                >
+                  <ContentBlocksPreview
+                    blocks={contentBlocks}
+                    onRemove={removeBlock}
+                  />
+                  <textarea
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    onPaste={handlePaste}
+                    onKeyDown={(e) => {
+                      if (
+                        e.key === "Enter" &&
+                        !e.shiftKey &&
+                        !e.metaKey &&
+                        !e.nativeEvent.isComposing
+                      ) {
+                        e.preventDefault();
+                        const el = e.target as HTMLElement | undefined;
+                        const form = el?.closest("form");
+                        form?.requestSubmit();
+                      }
+                    }}
+                    placeholder="Type your message..."
+                    className="field-sizing-content resize-none border-none bg-transparent p-3.5 pb-0 shadow-none ring-0 outline-none focus:ring-0 focus:outline-none max-h-40 overflow-auto"
+                  />
+                  <div className="flex items-center gap-6 pt-2">
+                    <div>
+                      <div className="flex items-center space-x-2">
+                        <Switch
+                          id="render-tool-calls"
+                          checked={hideToolCalls ?? false}
+                          onCheckedChange={setHideToolCalls}
+                        />
+                        <Label
+                          htmlFor="render-tool-calls"
+                          className="text-sm text-gray-600"
+                        >
+                          Hide Tool Calls
+                        </Label>
+                      </div>
+                    </div>
+                    <input
+                      id="file-input"
+                      type="file"
+                      onChange={handleFileUpload}
+                      multiple
+                      accept="image/jpeg,image/png,image/gif,image/webp,application/pdf"
+                      className="hidden"
+                    />
+                    {stream.isLoading ? (
+                      <Button
+                        key="stop"
+                        onClick={() => stream.stop()}
+                        className="ml-auto"
+                      >
+                        <LoaderCircle className="h-4 w-4 animate-spin" />
+                        Cancel
+                      </Button>
+                    ) : (
+                      <Button
+                        type="submit"
+                        className="ml-auto shadow-md transition-all"
+                        disabled={
+                          isLoading ||
+                          (!input.trim() && contentBlocks.length === 0)
+                        }
+                      >
+                        Send
+                      </Button>
+                    )}
+                  </div>
+                </form>
+              </div>
+            </div>
           </StickToBottom>
         </motion.div>
         <div className="relative flex flex-col border-l">
