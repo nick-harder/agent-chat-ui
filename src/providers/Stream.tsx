@@ -89,6 +89,7 @@ const StreamSession = ({
     defaultHeaders: {
       Authorization: `Bearer ${authToken}`,
     },
+    fetchStateHistory: true,
     onCustomEvent: (event, options) => {
       if (isUIMessage(event) || isRemoveUIMessage(event)) {
         options.mutate((prev) => {

@@ -22,7 +22,6 @@ import {
   SquarePen,
   XIcon,
   Plus,
-  CircleX,
 } from "lucide-react";
 import { useQueryState, parseAsBoolean } from "nuqs";
 import { StickToBottom, useStickToBottomContext } from "use-stick-to-bottom";
@@ -105,7 +104,7 @@ export function Thread() {
     handleFileUpload,
     dropRef,
     removeBlock,
-    resetBlocks,
+    resetBlocks: _resetBlocks,
     dragOver,
     handlePaste,
   } = useFileUpload();
@@ -192,6 +191,8 @@ export function Thread() {
       { messages: [...toolMessages, newHumanMessage], context },
       {
         streamMode: ["values"],
+        streamSubgraphs: true,
+        streamResumable: true,
         optimisticValues: (prev) => ({
           ...prev,
           context,
@@ -217,6 +218,8 @@ export function Thread() {
     stream.submit(undefined, {
       checkpoint: parentCheckpoint,
       streamMode: ["values"],
+      streamSubgraphs: true,
+      streamResumable: true,
     });
   };
 
@@ -386,7 +389,7 @@ export function Thread() {
                 !chatStarted && "mt-[25vh] flex flex-col items-stretch",
                 chatStarted && "grid grid-rows-[1fr_auto]",
               )}
-              contentClassName="pt-8 pb-40 max-w-3xl mx-auto flex flex-col gap-4 w-full"
+              contentClassName="pt-8 pb-16 max-w-3xl mx-auto flex flex-col gap-4 w-full"
               content={
                 <>
                   {/* render title, description + example buttons on initial load */}
