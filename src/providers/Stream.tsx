@@ -24,6 +24,7 @@ import { PasswordInput } from "@/components/ui/password-input";
 import { getApiKey } from "@/lib/api-key";
 import { useThreads } from "./Thread";
 import { toast } from "sonner";
+import { AgentSelector } from "@/components/custom/agent-selector";
 
 export type StateType = { messages: Message[]; ui?: UIMessage[] };
 
@@ -135,6 +136,23 @@ const StreamSession = ({
 const DEFAULT_API_URL = "http://localhost:2024";
 const DEFAULT_ASSISTANT_ID = "agent";
 
+type AgentContextType = {
+  selectedAgent: string | null;
+  setSelectedAgent: (agent: string | null) => void;
+  agentSelected: boolean;
+  setAgentSelected: (selected: boolean) => void;
+};
+
+const AgentContext = createContext<AgentContextType | undefined>(undefined);
+
+export const useAgentContext = () => {
+  const context = useContext(AgentContext);
+  if (!context) {
+    throw new Error("useAgentContext must be used within StreamProvider");
+  }
+  return context;
+};
+
 export const StreamProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
@@ -190,9 +208,21 @@ export const StreamProvider: React.FC<{ children: ReactNode }> = ({
     }
   }, []);
 
+  // Add agent selection state - use local state, not query state
+  const [selectedAgent, setSelectedAgent] = useState<string | null>(null);
+  const [agentSelected, setAgentSelected] = useState(false);
+
+  // Initialize agent from query state on mount
+  useEffect(() => {
+    if (assistantId) {
+      setSelectedAgent(assistantId);
+      setAgentSelected(true);
+    }
+  }, [assistantId]);
+
   // Only render after client check
   if (!checkedToken) {
-    return null; // Or a loading spinner
+    return null;
   }
 
   if (!authToken) {
@@ -255,6 +285,28 @@ export const StreamProvider: React.FC<{ children: ReactNode }> = ({
           </div>
         </form>
       </div>
+    );
+  }
+
+  // Show agent selector if no agent is selected
+  if (!agentSelected) {
+    console.log("Showing AgentSelector");
+    return (
+      <AgentContext.Provider value={{ selectedAgent, setSelectedAgent, agentSelected, setAgentSelected }}>
+        <AgentSelector
+          selectedAgent={selectedAgent}
+          onSelectAgent={setSelectedAgent}
+          onContinue={(keepCurrent: boolean = false) => {
+            console.log("onContinue called with selectedAgent:", selectedAgent, "keepCurrent:", keepCurrent);
+            if (selectedAgent || keepCurrent) {
+              if (selectedAgent) {
+                setAssistantId(selectedAgent);
+              }
+              setAgentSelected(true);
+            }
+          }}
+        />
+      </AgentContext.Provider>
     );
   }
 
@@ -365,14 +417,16 @@ export const StreamProvider: React.FC<{ children: ReactNode }> = ({
   }
 
   return (
-    <StreamSession
-      apiKey={apiKey}
-      apiUrl={apiUrl}
-      assistantId={assistantId}
-      authToken={authToken} // Pass token to StreamSession
-    >
-      {children}
-    </StreamSession>
+    <AgentContext.Provider value={{ selectedAgent, setSelectedAgent, agentSelected, setAgentSelected }}>
+      <StreamSession
+        apiKey={apiKey}
+        apiUrl={apiUrl}
+        assistantId={assistantId}
+        authToken={authToken}
+      >
+        {children}
+      </StreamSession>
+    </AgentContext.Provider>
   );
 };
 

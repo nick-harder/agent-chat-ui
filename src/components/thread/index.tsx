@@ -38,6 +38,8 @@ import {
   ArtifactTitle,
   useArtifactContext,
 } from "./artifact";
+import { AVAILABLE_AGENTS } from "@/components/custom/agent-selector";
+import { useAgentContext } from "@/providers/Stream";
 
 function StickyToBottomContent(props: {
   content: ReactNode;
@@ -257,6 +259,18 @@ export function Thread() {
     (m) => m.type === "ai" || m.type === "tool",
   );
 
+  const [assistantId, setAssistantId] = useQueryState("assistantId");
+
+  const { setAgentSelected, setSelectedAgent } = useAgentContext();
+
+  const handleSwitchAgent = () => {
+    console.log("handleSwitchAgent called");
+    setSelectedAgent(null);
+    setAgentSelected(false);
+  };
+
+  const currentAgent = AVAILABLE_AGENTS.find((a) => a.id === assistantId);
+
   return (
     <div className="flex h-screen w-full overflow-hidden">
       <div className="relative hidden lg:flex">
@@ -312,21 +326,7 @@ export function Thread() {
         >
           {!chatStarted && (
             <div className="absolute top-0 left-0 z-10 flex w-full items-center justify-between gap-3 p-2 pl-4">
-              {/* <div>
-                {(!chatHistoryOpen || !isLargeScreen) && (
-                  <Button
-                    className="hover:bg-gray-100"
-                    variant="ghost"
-                    onClick={() => setChatHistoryOpen((p) => !p)}
-                  >
-                    {chatHistoryOpen ? (
-                      <PanelRightOpen className="size-5" />
-                    ) : (
-                      <PanelRightClose className="size-5" />
-                    )}
-                  </Button>
-                )}
-              </div> */}
+              {/* Agent display moved to input area */}
             </div>
           )}
           {chatStarted && (
@@ -403,6 +403,11 @@ export function Thread() {
                         help you analyze energy-related data such as prices,
                         generation, load, and cross-border flows.
                       </p>
+                      {currentAgent && (
+                        <p className="text-sm text-gray-500 italic">
+                          {currentAgent.description}
+                        </p>
+                      )}
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <button
                           className="border rounded-lg p-4 hover:bg-gray-50"
@@ -511,7 +516,7 @@ export function Thread() {
                     className="field-sizing-content resize-none border-none bg-transparent p-3.5 pb-0 shadow-none ring-0 outline-none focus:ring-0 focus:outline-none max-h-40 overflow-auto"
                   />
                   <div className="flex items-center gap-6 pt-2">
-                    <div>
+                    <div className="flex items-center gap-4">
                       <div className="flex items-center space-x-2">
                         <Switch
                           id="render-tool-calls"
@@ -525,6 +530,21 @@ export function Thread() {
                           Hide Tool Calls
                         </Label>
                       </div>
+                      <div className="border-l border-gray-300 h-5" />
+                      {currentAgent && (
+                        <span className="text-sm text-gray-600">
+                          Agent: <span className="font-medium">{currentAgent.name}</span>
+                        </span>
+                      )}
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={handleSwitchAgent}
+                        className="text-sm hover:bg-gray-200"
+                      >
+                        <Plus className="h-4 w-4 mr-1" />
+                        Switch Agent
+                      </Button>
                     </div>
                     <input
                       id="file-input"
