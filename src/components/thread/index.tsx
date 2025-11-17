@@ -403,11 +403,6 @@ export function Thread() {
                         help you analyze energy-related data such as prices,
                         generation, load, and cross-border flows.
                       </p>
-                      {currentAgent && (
-                        <p className="text-sm text-gray-500 italic">
-                          {currentAgent.description}
-                        </p>
-                      )}
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <button
                           className="border rounded-lg p-4 hover:bg-gray-50"
