@@ -81,22 +81,6 @@ export function AgentSelector({
               </p>
             </button>
           ))}
-          <div className="flex gap-2 rounded-lg border border-yellow-200 bg-yellow-50 p-3">
-            <svg
-              className="h-5 w-5 flex-shrink-0 text-yellow-600"
-              fill="none"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path d="M12 9v2m0 4v2m-6.364-4.364l1.414-1.414m2.828 7.778l1.414 1.414m4.242-7.778l1.414 1.414m2.828 7.778l1.414 1.414M12 3a9 9 0 100 18 9 9 0 000-18z"></path>
-            </svg>
-            <p className="text-sm text-yellow-800">
-              Switching agents will start a new chat.
-            </p>
-          </div>
         </div>
 
         <div className="flex justify-end gap-3 border-t p-6">

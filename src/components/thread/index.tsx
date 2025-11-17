@@ -261,7 +261,7 @@ export function Thread() {
 
   const [assistantId, setAssistantId] = useQueryState("assistantId");
 
-  const { setAgentSelected, setSelectedAgent } = useAgentContext();
+  const { setAgentSelected, setSelectedAgent, selectedAgent } = useAgentContext();
 
   const handleSwitchAgent = () => {
     console.log("handleSwitchAgent called");
@@ -269,7 +269,9 @@ export function Thread() {
     setAgentSelected(false);
   };
 
-  const currentAgent = AVAILABLE_AGENTS.find((a) => a.id === assistantId);
+  // Use selectedAgent from context if available, otherwise fall back to assistantId
+  const currentAgentId = selectedAgent || assistantId;
+  const currentAgent = AVAILABLE_AGENTS.find((a) => a.id === currentAgentId);
 
   return (
     <div className="flex h-screen w-full overflow-hidden">
